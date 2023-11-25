@@ -16,9 +16,10 @@ class Quiz(models.Model):
     end_time = models.DateTimeField()
     duration_minutes = models.IntegerField(default=30)
     max_score = models.IntegerField(default=0)
+    nr_of_questions = models.IntegerField(default=1)
 
     def __str__(self):
-        return f"{self.title} - {self.creator}"
+        return f"{self.title} by {self.creator}"
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
@@ -29,8 +30,15 @@ class Choice(models.Model):
     is_correct = models.BooleanField(default=False)
 
 class Response(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+
+
+class UserQuizHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)

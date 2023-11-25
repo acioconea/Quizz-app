@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'userprofile',
-    'quizz',
+    'quiz',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'quizz_app.urls'
+ROOT_URLCONF = 'quiz_app.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'quizz_app.wsgi.application'
+WSGI_APPLICATION = 'quiz_app.wsgi.application'
 
 
 # Database
