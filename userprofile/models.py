@@ -4,4 +4,5 @@ from django.db import models
 
 class UserExtend(User):
 
-    location = models.ForeignKey('aplicatie1.Location', on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return f"{self.first_name}  {self.last_name}"
