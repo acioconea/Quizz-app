@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import path, include
 
+import userprofile.views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('django.contrib.auth.urls'), {'next_page': '/'}, name='login'),
     path('', LoginView.as_view(), name='login'),
-    path('userprofile/', include('userprofile.urls')),
+    path('user/', include('userprofile.urls')),
+    path('quiz/', include('quiz.urls')),
 
 ]

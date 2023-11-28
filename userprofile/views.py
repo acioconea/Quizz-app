@@ -4,6 +4,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView, ListView, UpdateView
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 import random
 import string
 
@@ -49,7 +51,7 @@ class CreateNewAccountView(CreateView):
         return reverse('userprofile:listare_utilizatori')
 
 
-class ListOfUserView(LoginRequiredMixin, ListView):
+class ListOfUserView( ListView):
     model = User
     template_name = 'registration/registration_index.html'
 

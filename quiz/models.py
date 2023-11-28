@@ -2,27 +2,38 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+import quiz
+
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
+    def __str__(self):
+        return f"{self.name}"
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True)
     creator = models.ForeignKey('userprofile.UserExtend', on_delete=models.CASCADE, null=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
     start_time = models.DateTimeField(default=timezone.now)
-    end_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True)
     duration_minutes = models.IntegerField(default=30)
     max_score = models.IntegerField(default=0)
     nr_of_questions = models.IntegerField(default=1)
+
+    def get_questions(self):
+        return self.question_set.all()
 
     def __str__(self):
         return f"{self.title} by {self.creator}"
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
+
+    def get_choices(self):
+        return self.choice_set.all()
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

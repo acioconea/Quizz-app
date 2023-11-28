@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<form method="POST">
+<form method="post">
     {% csrf_token %}
     <div class="col-md-2">
     {% if request.user.is_authenticated is False %}
