@@ -4,20 +4,21 @@ from django.http import request
 from django.shortcuts import redirect
 
 import quiz
-from quiz.models import Quiz, Question, Choice
+from quiz.models import Quiz, Question, Choice, Category
 
 
 class QuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        fields = ['title', 'category', 'start_time', 'end_time', 'duration_minutes', 'max_score', 'nr_of_questions']
+        fields = ['title', 'category', 'start_time', 'end_time', 'creator','duration_minutes', 'max_score', 'nr_of_questions']
 
         widgets = {
             "title": TextInput(attrs={"placeholder": "Title", "class": "form-control"}),
             "category": Select(attrs={"placeholder": "Category", "class": "form-control"}),
             "start_time": DateField(),
             "end_time": DateField(),
+            'creator': Select(attrs={"placeholder": "User", "class": "form-control"}),
             "duration_minutes": NumberInput(attrs={"class": "form-control"}),
             "max_score": NumberInput(attrs={"placeholder": 100, "class": "form-control"}),
             "nr_of_questions": NumberInput(attrs={"placeholder": 5, "class": "form-control"}),
@@ -26,7 +27,7 @@ class QuizForm(forms.ModelForm):
     def __init__(self, pk, *args, **kwargs):
         super(QuizForm, self).__init__(*args, **kwargs)
         self.pk = pk
-        self.creator=request.user.pk
+        self.creator=request.user
         # redirect('create_question', quiz_id=pk)
 
 class QuestionForm(forms.ModelForm):
@@ -43,4 +44,11 @@ class ChoiceForm(forms.ModelForm):
         fields = ['text', 'is_correct']
         widgets = {
             "text": TextInput(attrs={"placeholder": "Choice", "class": "form-control"}),
+        }
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            " name": TextInput(attrs={"placeholder": "Category", "class": "form-control"}),
         }

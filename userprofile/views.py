@@ -10,7 +10,6 @@ import random
 import string
 
 from userprofile.forms import NewAccountForm
-from userprofile.models import UserExtend
 
 
 def invite_user(user_id):
@@ -51,13 +50,13 @@ class CreateNewAccountView(CreateView):
         return reverse('userprofile:listare_utilizatori')
 
 
-class ListOfUserView( ListView):
+class ListOfUserView(ListView):
     model = User
     template_name = 'registration/registration_index.html'
 
 
-class UpdateUserView(LoginRequiredMixin, UpdateView):
-    model = UserExtend
+class UpdateUserView(UpdateView):
+    model = User
     template_name = 'forms.html'
     # fields = ['first_name', 'last_name', 'username', 'email']
     form_class = NewAccountForm

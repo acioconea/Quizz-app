@@ -19,6 +19,7 @@ from django.contrib.auth.views import LoginView
 from django.urls import path, include
 
 import userprofile.views
+from userprofile.forms import LoginForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
