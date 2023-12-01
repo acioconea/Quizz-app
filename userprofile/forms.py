@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.forms import TextInput
 
+
 class NewAccountForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, help_text='Required.')
     last_name = forms.CharField(max_length=30, required=True, help_text='Required.')
@@ -18,7 +19,8 @@ class NewAccountForm(UserCreationForm):
             "email": TextInput(attrs={"placeholder": "Email", "class": "form-control"}),
             "username": TextInput(attrs={"placeholder": "Username", "class": "form-control"}),
             "password1": TextInput(attrs={"placeholder": "Password", "class": "form-control", "type": "password"}),
-            "password2": TextInput(attrs={"placeholder": "Confirm password", "class": "form-control", "type": "password"}),
+            "password2": TextInput(
+                attrs={"placeholder": "Confirm password", "class": "form-control", "type": "password"}),
         }
 
     def __init__(self, pk, *args, **kwargs):
@@ -31,8 +33,7 @@ class NewAccountForm(UserCreationForm):
             raise forms.ValidationError("Usernameul deja exista! Te rugam sa alegi alte valori")
         return username
 
-    from django import forms
-    from django.contrib.auth.forms import AuthenticationForm
 
 class LoginForm(AuthenticationForm):
-    pass
+    username = forms.CharField(max_length=100)
+    password = forms.CharField(widget=forms.PasswordInput)
