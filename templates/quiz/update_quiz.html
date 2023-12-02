@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" action="{% url 'quiz:editare_quiz' pk=object.id %}">
+    {% csrf_token %}
+    {% for field in form %}
+    <label>{{ field.label_tag }}</label>
+    {{ field }}
+    <br>
+  {% endfor %}
+    {% for field in form %}
+    <label>{{ field.label_tag }}</label>
+    {{ field }}
+    <br>
+  {% endfor %}
+
+    <button type="submit">Save</button>
+</form>
+{% endblock %}

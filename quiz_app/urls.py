@@ -23,7 +23,7 @@ from userprofile.forms import LoginForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('django.contrib.auth.urls'), {'next_page': '/'}, name='login'),
+    path('', include('django.contrib.auth.urls'), {'next_page': '/quiz/'}, name='login'),
     path('', login_view, name='login'),
     path('user/', include('userprofile.urls')),
     path('quiz/', include('quiz.urls')),

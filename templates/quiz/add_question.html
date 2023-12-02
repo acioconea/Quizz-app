@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+ <form method="post">
+    <h2>Add Question to Quiz</h2>
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form.choice_formset.as_table }}
+        <button type="submit">Save Question</button>
+
+    </form>
+{% endblock %}
