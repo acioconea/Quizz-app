@@ -3,18 +3,16 @@ from django.db import models
 from django.utils import timezone
 
 
-
-import quiz
-
-
 class Category(models.Model):
     name = models.CharField(max_length=255)
+
     def __str__(self):
         return f"{self.name}"
 
+
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
@@ -30,6 +28,8 @@ class Quiz(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.creator}"
+
+
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
@@ -37,10 +37,18 @@ class Question(models.Model):
     def get_choices(self):
         return self.choice_set.all()
 
+
+    def __str__(self):
+        return self.text
+
+
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text
 
 
 class UserQuizHistory(models.Model):
@@ -56,4 +64,3 @@ class Response(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     selected_answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
-

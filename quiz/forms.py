@@ -28,14 +28,21 @@ class QuizForm(forms.ModelForm):
         self.pk = pk
         # redirect('create_question', quiz_id=pk)
 
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ['text']
 
+        widgets = {
+            "text": TextInput(attrs={"placeholder": "Text", "class": "form-control"})}
+
     def __init__(self, *args, **kwargs):
+        self.pk = kwargs.pop('pk', None)
         super(QuestionForm, self).__init__(*args, **kwargs)
-        self.choice_formset = ChoiceFormSet(instance=self.instance)
+        if self.pk is not None:
+            self.choice_formset = ChoiceFormSet(instance=self.instance)
+
 
 class ChoiceForm(forms.ModelForm):
     class Meta:

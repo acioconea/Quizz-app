@@ -21,7 +21,7 @@
                         Dezactivat
                     {% endif %}
                 </td>
-                <td><a href="{% url 'quiz:editare_quiz' pk=item.id %}" class="btn btn-success">Editare quiz</a></td>
+                <td><a href="{% url 'quiz:update_quiz' pk=item.id %}" class="btn btn-success">Editare quiz</a></td>
                 <td><a href="{% url 'quiz:adaugare_intrebare' quiz_id=item.id %}" class="btn btn-success">Adaugare intrebari</a></td>
             </tr>
         {% endfor %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Update Question</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Choices</h3>
+    {{ choice_formset.management_form }}
+    {% for form in choice_formset %}
+      {{ form.as_table }}
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Update Question and Choices</button>
+  </form>
+{% endblock %}
