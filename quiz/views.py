@@ -1,25 +1,62 @@
+import random
+from datetime import timedelta
+
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.forms import BaseModelForm
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView
-from quiz.models import Question, Category
-from .forms import QuestionForm, QuizForm, ChoiceFormSet
-from .models import Quiz
+from django.db.models import F
+from django.urls import reverse_lazy
+from django.utils.datetime_safe import datetime
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from quiz.models import Category, UserQuizHistory
+from .forms import QuestionForm, QuizForm, ChoiceFormSet, CategoryForm
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
+from django.shortcuts import render, redirect
+from django.views import View
+from .models import Quiz, Question, Choice, Response
 
 
 class QuizView(LoginRequiredMixin, ListView):
     model = Quiz
     template_name = 'quiz/quiz_index.html'
-    # context_object_name = 'quizzes'
-    paginate_by = 5
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Quiz.objects.order_by('-created_at')
+
+
+class UserQuizHistoryView(LoginRequiredMixin, ListView):
+    model = UserQuizHistory
+    template_name = 'quiz/quiz_history.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return UserQuizHistory.objects.filter(user=self.request.user).order_by('-created_at')
+
+
+class NewCategoryView(LoginRequiredMixin, CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'forms.html'
+
+    def get_form_kwargs(self):
+        data = super(NewCategoryView, self).get_form_kwargs()
+        return data
+
+    def get_success_url(self):
+        success_url = reverse('quiz:lista_quizuri')
+        return success_url
 
 
 class NewQuizView(LoginRequiredMixin, CreateView):
     model = Quiz
-    fields = ['title', 'category', 'start_time', 'end_time', 'duration_minutes', 'max_score',
-              'nr_of_questions']
+    form_class = QuizForm
     template_name = 'forms.html'
+
+    def get_form_kwargs(self):
+        data = super(NewQuizView, self).get_form_kwargs()
+        data.update({"pk": None})
+        return data
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
@@ -30,27 +67,10 @@ class NewQuizView(LoginRequiredMixin, CreateView):
         return success_url
 
 
-# class UpdateQuizView(LoginRequiredMixin, UpdateView):
-#     model = Quiz
-#     form_class = QuizForm
-#     template_name = 'quiz/update_quiz.html'
-#     success_url = reverse_lazy('quiz:lista_quizuri')
-#
-#     def get_form_kwargs(self):
-#         data = super(UpdateQuizView, self).get_form_kwargs()
-#         data.update({"pk": self.kwargs['pk']})
-#         return data
-#
-#     def get_success_url(self):
-#         return reverse('quiz:lista_quizuri')
-
-
 class UpdateQuizView(LoginRequiredMixin, UpdateView):
-
     model = Quiz
     template_name = 'quiz/update_quiz.html'
     form_class = QuizForm
-    success_url = reverse_lazy('quiz:lista_quizuri')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,62 +82,188 @@ class UpdateQuizView(LoginRequiredMixin, UpdateView):
         data.update({"pk": self.kwargs['pk']})
         return data
 
-
-class UpdateQuestionView(LoginRequiredMixin, UpdateView):
-    model = Question
-    template_name = 'quiz/update_question.html'
-    form_class = QuestionForm
-    success_url = reverse_lazy('quiz:update_quiz')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        question = self.get_object()
-        context['choices'] = question.get_choices()
-        return context
-
-    def get_form_kwargs(self):
-        data = super(UpdateQuestionView, self).get_form_kwargs()
-        data.update({"pk": self.kwargs['pk']})
-        return data
+    def get_success_url(self):
+        success_url = reverse_lazy('quiz:lista_quizuri')
+        return success_url
 
 
 class AddQuestionView(LoginRequiredMixin, CreateView):
     model = Question
     form_class = QuestionForm
     template_name = 'quiz/add_question.html'
-    success_url = reverse_lazy('quiz:lista_quizuri')
+    success_url = reverse_lazy('quiz:update_quiz')
 
     def form_valid(self, form):
         form.instance.quiz_id = self.kwargs['quiz_id']
         context = self.get_context_data()
-        choices = context['choice_formset']
+        choice_formset = context['choice_formset']
 
-        # Ensure each form in the formset has the question_id set
-        for choice_form in choices:
-            choice_form.instance.question = self.object
+        for choice_form in choice_formset:
+            choice_form.instance.question = form.instance
 
-        if form.is_valid() and choices.is_valid():
+        if form.is_valid() and choice_formset.is_valid():
             self.object = form.save()
-            choices.instance = self.object
-            choices.save()
+
+            choice_formset.instance = self.object
+            choice_formset.save()
 
             return redirect(self.get_success_url())
 
-        return self.form_invalid(form)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         if self.request.POST:
             data['choice_formset'] = ChoiceFormSet(self.request.POST)
         else:
+            data['choice_formset'] = ChoiceFormSet()
+        return data
+
+    def get_success_url(self):
+        return reverse_lazy('quiz:update_quiz', kwargs={'pk': self.object.quiz_id})
+
+
+class UpdateQuestionView(LoginRequiredMixin, UpdateView):
+    model = Question
+    template_name = 'quiz/update_question.html'
+    form_class = QuestionForm
+    success_url = reverse_lazy('quiz:lista_quizuri')
+
+    def get(self, request, *args, **kwargs):
+        question = self.get_object()
+
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        choice_formset = context['choice_formset']
+
+        for choice_form in choice_formset:
+            choice_form.instance.question = form.instance
+
+        if form.is_valid() and choice_formset.is_valid():
+            self.object = form.save()
+
+            choice_formset.instance = self.object
+            choice_formset.save()
+
+            return redirect(self.get_success_url())
+
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['choice_formset'] = ChoiceFormSet(self.request.POST, instance=self.object)
+        else:
             data['choice_formset'] = ChoiceFormSet(instance=self.object)
         return data
 
-
-class NewCategoryView(LoginRequiredMixin, CreateView):
-    model = Category
-    fields = ['name']
-    template_name = 'forms.html'
-
     def get_success_url(self):
         return reverse('quiz:categorie_noua')
+
+
+class StartQuizView(View):
+    template_name = 'quiz/start_quiz.html'
+
+    def get(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        time_up = datetime.combine(datetime.today(), datetime.now().time()) + timedelta(minutes=quiz.duration_minutes)
+
+        user_quiz_history = UserQuizHistory.objects.create(
+            user=request.user,
+            quiz=quiz,
+            score=0,
+            created_at=timezone.now()
+        )
+        user_quiz_history.submitted = True
+        user_quiz_history.save()
+
+        questions = quiz.get_questions().order_by(F('id').desc())  # Initial order by ID or any other field
+        questions = list(questions)
+        random.shuffle(questions)
+
+        total_score = quiz.max_score
+        score_per_question = total_score / quiz.nr_of_questions if quiz.nr_of_questions > 0 else 0.0
+
+        context = {
+            'quiz': quiz,
+            'questions': questions,
+            'total_score': total_score,
+            'score_per_question': score_per_question,
+            'user_quiz_history': user_quiz_history,
+            'time_up': time_up,
+        }
+
+        return render(request, self.template_name, context)
+
+
+class SubmitQuizView(View):
+    template_name = 'quiz/submit_quiz.html'
+
+    def post(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        questions = quiz.get_questions()
+
+        user_quiz_history = UserQuizHistory.objects.filter(
+            user=request.user,
+            quiz=quiz
+        ).order_by('-created_at').first()
+
+        user_responses = []
+        total_score = 0
+
+        for question in questions:
+            choice_ids = request.POST.getlist(f'choice_{question.id}', [])
+
+            correct_choices = question.choice_set.filter(is_correct=True).values_list('id', flat=True)
+
+            if set(map(int, choice_ids)) == set(correct_choices):
+                question_score = quiz.max_score / len(questions)
+                total_score += question_score
+            else:
+                question_score = 0
+
+            # Save the response
+            response = Response(
+                user=request.user,
+                quiz=user_quiz_history,
+                question=question,
+                score=question_score
+            )
+            response.save()
+
+            response.selected_answer.set(Choice.objects.filter(id__in=choice_ids))
+
+            user_responses.append(response)
+
+        user_quiz_history.score = total_score
+        user_quiz_history.submitted = True
+        user_quiz_history.save()
+
+        context = {
+            'user_quiz_history': user_quiz_history,
+            'user_responses': user_responses,
+            'total_score': total_score,
+        }
+
+        return render(request, self.template_name, context)
+
+
+class QuizDeleteView(DeleteView):
+    model = Quiz
+    template_name = 'quiz/quiz_confirm_delete.html'
+    success_url = reverse_lazy('quiz:lista_quizuri')
+
+
+class QuestionDeleteView(DeleteView):
+    model = Question
+    template_name = 'quiz/question_confirm_delete.html'
+    success_url = reverse_lazy('quiz:update_quiz')
+
+    def get_success_url(self):
+        return reverse_lazy('quiz:update_quiz', kwargs={'pk': self.object.quiz_id})
+
+
+def home(request):
+    return render(request, 'home.html')

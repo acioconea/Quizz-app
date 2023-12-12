@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Quiz Submitted Successfully</h2>
+
+  <p>Your total score is: {{ total_score|floatformat:2 }}</p>
+
+  <h3>Your Responses:</h3>
+  <ul>
+    {% for response in user_responses %}
+      <li>
+        <strong>{{ response.question.text }}</strong>
+        <ul>
+          {% for choice in response.selected_answer.all %}
+            <li>{{ choice.text }}{% if choice.is_correct %} (Correct){% endif %}</li>
+          {% endfor %}
+        </ul>
+        <p>Score: {{ response.score|floatformat:2 }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p>Thank you for taking the quiz!</p>
+{% endblock %}

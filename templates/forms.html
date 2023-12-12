@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="col-md-12">
-        <form method="POST">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="col-md-6">
-                    {{ field.label }} {{ field }} {{ field.errors }}
-                </div><br>
-            {% endfor %}
-            <button type="submit" class="btn btn-success">Salveaza</button>
-        </form>
-    </div>
+<div >
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <label>{{ field.label_tag }}</label>
+        {{ field }}
+        <br>
+        {% endfor %}
+        <button class="button-primary" type="submit">Save</button>
+    </form>
+
+</div>
 {% endblock %}

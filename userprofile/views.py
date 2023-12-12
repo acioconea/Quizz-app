@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login
 from userprofile.forms import NewAccountForm, LoginForm
 
 
-class CreateNewAccountView(LoginRequiredMixin, CreateView):
+class CreateNewAccountView(CreateView):
     model = User
     template_name = 'forms.html'
     # fields = ['first_name', 'last_name', 'username', 'email']
@@ -19,7 +19,7 @@ class CreateNewAccountView(LoginRequiredMixin, CreateView):
         return data
 
     def get_success_url(self):
-        return reverse('userprofile:listare_utilizatori')
+        return reverse('quiz:home')
 
 
 class ListOfUserView(LoginRequiredMixin, ListView):

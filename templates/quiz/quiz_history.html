@@ -5,30 +5,18 @@
         <tr>
             <th></th>
             <th>Quiz</th>
-            <th>Category</th>
-            <th>Creator</th>
+            <th>Time</th>
+            <th>Score</th>
 
         </tr>
         </thead>
         <tbody>
-        {% for item in quiz_list %}
+        {% for item in userquizhistory_list %}
             <tr>
                 <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.category }}</td>
-                <td>{{ item.creator }}</td>
-                <td>{% if item.active is True %}
-                        Activ
-                    {% else %}
-                        Dezactivat
-                    {% endif %}
-                </td>
-                <td><a class ="button-primary" href="{% url 'quiz:start_quiz' quiz_id=item.id %}" class="btn">Start quiz</a></td>
-                {% if request.user == item.creator %}
-                <td><a class ="button-primary" href="{% url 'quiz:update_quiz' pk=item.id %}" class="btn">Editare quiz</a></td>
-                <td><a class ="button-primary" href="{% url 'quiz:quiz_delete' pk=item.id %}" class="btn">Delete Quiz</a></td>
-                {% endif %}
-            </tr>
+                <td>{{ item.quiz.title }}</td>
+                <td>{{ item.created_at }}</td>
+                <td>{{ item.score|floatformat:2 }} out of {{ item.quiz.max_score|floatformat:2 }}</td>
         {% endfor %}
         </tbody>
     </table>

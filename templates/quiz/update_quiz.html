@@ -9,28 +9,21 @@
     {{ field }}
     <br>
   {% endfor %}
-    <button type="submit">Save</button>
+    <button class="button-primary">Save</button>
   </form>
 
   <!-- Display Questions -->
 <h2>Questions</h2>
   {% for question in questions %}
-    <div>
       <h3>{{ question.text }}</h3>
-      <!-- Display Edit Button for each Question -->
       <a href="{% url 'quiz:update_question' question.id %}">Edit</a>
+      <a href="{% url 'quiz:question_delete' question.id %}">Delete Question</a>
       <ul>
         {% for choice in question.get_choices %}
           <li>{{ choice.text }} {% if choice.is_correct %}(Correct){% endif %}</li>
         {% endfor %}
       </ul>
-    </div>
   {% endfor %}
 
-  <!-- Form for adding a new question -->
-  <form method="post" action="{% url 'quiz:adaugare_intrebare' quiz.id %}">
-    {% csrf_token %}
-    <!-- Include Question ModelForm fields here -->
-    <button type="submit">Add Question</button>
-  </form>
+  <a href="{% url 'quiz:adaugare_intrebare' quiz.id %}" class="button-primary">Add question</a>
 {% endblock %}

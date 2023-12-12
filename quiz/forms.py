@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import TextInput, Select, DateField, NumberInput, DateInput, inlineformset_factory
 from django.http import request
 from django.shortcuts import redirect
@@ -26,7 +27,6 @@ class QuizForm(forms.ModelForm):
     def __init__(self, pk, *args, **kwargs):
         super(QuizForm, self).__init__(*args, **kwargs)
         self.pk = pk
-        # redirect('create_question', quiz_id=pk)
 
 
 class QuestionForm(forms.ModelForm):
@@ -35,13 +35,20 @@ class QuestionForm(forms.ModelForm):
         fields = ['text']
 
         widgets = {
-            "text": TextInput(attrs={"placeholder": "Text", "class": "form-control"})}
+            "text": TextInput(attrs={"placeholder": "Question", "class": "form-control"})}
 
     def __init__(self, *args, **kwargs):
         self.pk = kwargs.pop('pk', None)
         super(QuestionForm, self).__init__(*args, **kwargs)
         if self.pk is not None:
             self.choice_formset = ChoiceFormSet(instance=self.instance)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        choices = self.cleaned_data.get('choice_set')
+
+        if choices and len(choices) < 2:
+            raise ValidationError('A question must have at least 2 choices.')
 
 
 class ChoiceForm(forms.ModelForm):
@@ -53,12 +60,15 @@ class ChoiceForm(forms.ModelForm):
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-ChoiceFormSet = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=4)
+
+ChoiceFormSet = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=2)
+QuizFormSet = inlineformset_factory(Quiz, Question, fields=['text'])
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ['name']
         widgets = {
-            " name": TextInput(attrs={"placeholder": "Category", "class": "form-control"}),
+            "name": TextInput(attrs={"placeholder": "Category", "class": "form-control"}),
         }

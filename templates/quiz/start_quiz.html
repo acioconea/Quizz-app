@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>{{ quiz.title }}</h2>
+
+ <div id="timer">Time Remaining: <span id="timer-span"></span></div>
+
+
+<form method="post" action="{% url 'quiz:submit_quiz' quiz.id %}">
+    {% csrf_token %}
+    {{ quiz_formset.management_form }}
+
+    {% for question in questions %}
+        <h3>{{ question.text }}</h3>
+        {% for choice in question.get_choices %}
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="choice_{{ choice.id }}" name="choice_{{ question.id }}" value="{{ choice.id }}">
+                <label class="form-check-label" for="choice_{{ choice.id }}">{{ choice.text }}</label>
+                {% if choice.is_correct %}
+                    <input type="hidden" name="correct_choice_{{ question.id }}" value="{{ choice.id }}">
+                {% endif %}
+            </div>
+            <hr>
+        {% endfor %}
+    {% endfor %}
+
+    <button type="submit" id="submit-btn">Submit Quiz</button>
+</form>
+<script>
+    const endTime = new Date("{{ time_up|date:'Y-m-d H:i:s' }}").getTime();
+    const timerElement = document.getElementById("timer-span");
+    const submitButton = document.getElementById("submit-btn");
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const timeRemaining = endTime - now;
+
+        if (timeRemaining <= 0) {
+            submitButton.click();
+        } else {
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            timerElement.innerHTML = `${minutes}m ${seconds}s`;
+        }
+    }
+
+    setInterval(updateTimer, 1000);
+
+    window.onload = function () {
+        updateTimer();
+        if (endTime <= new Date().getTime()) {
+            submitButton.disabled = true;
+        }
+    };
+</script>
+{% endblock %}

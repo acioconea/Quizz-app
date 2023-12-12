@@ -37,7 +37,6 @@ class Question(models.Model):
     def get_choices(self):
         return self.choice_set.all()
 
-
     def __str__(self):
         return self.text
 
@@ -54,13 +53,14 @@ class Choice(models.Model):
 class UserQuizHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    score = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+    score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    submitted = models.BooleanField(default=False)
 
 
 class Response(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(UserQuizHistory, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    score = models.IntegerField(default=0)
+    selected_answer = models.ManyToManyField(Choice)  # Change this field as needed
+    score = models.FloatField(default=0)

@@ -1,11 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
- <form method="post">
+<form method="post">
     <h2>Add Question to Quiz</h2>
-        {% csrf_token %}
-        {{ form.as_p }}
-        {{ form.choice_formset.as_table }}
-        <button type="submit">Save Question</button>
+    {% csrf_token %}
+    {{ form.as_p }}
 
-    </form>
+    {{ choice_formset.management_form }}
+     {% for form in choice_formset %}
+     <div >
+         <table class="table">
+        <tbody>
+      <label for="{{ form.text.id_for_label }}">Choice</label>
+      {{ form.text }}
+      {{ form.text.errors }}
+
+      {{ form.is_correct }}
+
+      <label for="{{ form.is_correct.id_for_label }}">Is correct?</label>
+      {{ form.is_correct.errors }}
+
+      {{ form.DELETE }}
+      <label for="{{ form.DELETE.id_for_label }}">   Delete</label>
+      {{ form.DELETE.errors }}
+        </tbody>
+    </table>
+    </div>
+  {% endfor %}
+
+
+    <button type="submit">Save Question</button>
+</form>
 {% endblock %}

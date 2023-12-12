@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import LogoutView
 from django.urls import path, include
 
 from userprofile.views import login_view
@@ -20,9 +23,13 @@ Including another URLconf
 """
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('django.contrib.auth.urls'), {'next_page': '/quiz/'}, name='login'),
+    path('', include('django.contrib.auth.urls'), name='login'),
     path('', login_view, name='login'),
     path('user/', include('userprofile.urls')),
     path('quiz/', include('quiz.urls')),
 
+
+
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
