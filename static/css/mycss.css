@@ -13,6 +13,8 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    align-content: center;
+    justify-content: center;
 }
 
 
@@ -191,20 +193,15 @@ tr:nth-child(even) {
 }
 
 .form-group input[type="submit"] {
-    background-color: #4caf50;
+    background-color: #3498db;
     color: #fff;
     cursor: pointer;
 }
 
 .form-group input[type="submit"]:hover {
-    background-color: #45a049;
+    background-color: #3498db;
 }
 
-.form-group .forgot-password {
-    color: #007BFF;
-    text-decoration: none;
-    display: block;
-    margin-top: 10px;
-}
+
 
 

@@ -23,7 +23,7 @@
         {% endfor %}
     {% endfor %}
 
-    <button type="submit" id="submit-btn">Submit Quiz</button>
+    <button type="submit" id="submit-btn" class ="button-primary">Submit Quiz</button>
 </form>
 <script>
     const endTime = new Date("{{ time_up|date:'Y-m-d H:i:s' }}").getTime();

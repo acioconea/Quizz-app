@@ -5,7 +5,7 @@
   <p>Are you sure you want to delete the question "{{ question.text }}"?</p>
   <form method="post">
     {% csrf_token %}
-    <button type="submit">Delete</button>
+    <button type="submit" class ="button-primary">Delete</button>
   </form>
-  <a href="{% url 'quiz:update_quiz' question.quiz_id %}">Cancel</a>
+  <a href="{% url 'quiz:update_quiz' question.quiz_id %}" >Cancel</a>
 {% endblock %}
