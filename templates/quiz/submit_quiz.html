@@ -5,7 +5,7 @@
   <p>Your total score is: {{ total_score|floatformat:2 }}</p>
 
   <h3>Your Responses:</h3>
-  <ul>
+  <ol>
     {% for response in user_responses %}
       <li>
         <strong>{{ response.question.text }}</strong>
@@ -17,7 +17,7 @@
         <p>Score: {{ response.score|floatformat:2 }}</p>
       </li>
     {% endfor %}
-  </ul>
+  </ol>
 
   <p>Thank you for taking the quiz!</p>
 {% endblock %}

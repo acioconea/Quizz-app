@@ -62,5 +62,5 @@ class Response(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(UserQuizHistory, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_answer = models.ManyToManyField(Choice)  # Change this field as needed
+    selected_answer = models.ManyToManyField(Choice)
     score = models.FloatField(default=0)

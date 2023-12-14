@@ -9,10 +9,9 @@ from quiz.models import Quiz, Question, Choice, Category
 
 
 class QuizForm(forms.ModelForm):
-
     class Meta:
         model = Quiz
-        fields = ['title', 'category', 'start_time', 'end_time','duration_minutes', 'max_score', 'nr_of_questions']
+        fields = ['title', 'category', 'start_time', 'end_time', 'duration_minutes', 'max_score', 'nr_of_questions']
 
         widgets = {
             "title": TextInput(attrs={"placeholder": "Title", "class": "form-control"}),
@@ -43,25 +42,17 @@ class QuestionForm(forms.ModelForm):
         if self.pk is not None:
             self.choice_formset = ChoiceFormSet(instance=self.instance)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        choices = self.cleaned_data.get('choice_set')
-
-        if choices and len(choices) < 2:
-            raise ValidationError('A question must have at least 2 choices.')
-
-
 class ChoiceForm(forms.ModelForm):
     class Meta:
         model = Choice
         fields = ['text', 'is_correct']
         widgets = {
-            'text': forms.TextInput(attrs={'class': 'form-control'}),
+            'text': forms.TextInput(attrs={"placeholder": "Choise", 'class': 'form-control'}),
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 
-ChoiceFormSet = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=2)
+ChoiceFormSet = inlineformset_factory(Question, Choice, form=ChoiceForm, extra=4)
 QuizFormSet = inlineformset_factory(Quiz, Question, fields=['text'])
 
 

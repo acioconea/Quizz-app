@@ -12,6 +12,7 @@
             <nav >
                 {% if request.user.is_authenticated %}
                 <div >
+                    <a class ="button-primary" href="{% url 'home' %}">Home</a>
                     <a class ="button-primary" href="{% url 'quiz:quiz_nou' %}">Add quiz</a>
                     <a class ="button-primary" href="{% url 'quiz:categorie_noua' %}">Add category</a>
                     <a class ="button-primary" href="{% url 'quiz:lista_quizuri' %}">Quiz</a>
@@ -23,6 +24,9 @@
 
                 </div>
                 {% else %}
+                <div >
+                    <a class ="button-primary" href="{% url 'home' %}">Home</a>
+                </div>
                     <div style="text-align: right">
                 <a class ="button" href="{% url 'userprofile:utilizator_nou' %}">Register</a>
                 <a  class ="button" href="{% url 'login' %}">Login</a>
@@ -30,11 +34,10 @@
                 </div>
             </nav>
 </div>
-<div class="container">
+<div class="centered-container">
 {% block content %}
 {% endblock %}
 </div>
-
-
+<footer></footer>
 </body>
 </html>

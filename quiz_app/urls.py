@@ -3,8 +3,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import path, include
+from django.views.generic import TemplateView
 
 from userprofile.views import login_view
+
 """
 URL configuration for quizz_app project.
 
@@ -23,12 +25,11 @@ Including another URLconf
 """
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('django.contrib.auth.urls'), name='login'),
-    path('', login_view, name='login'),
+    path('login/', login_view, name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('user/', include('userprofile.urls')),
+    path('', TemplateView.as_view(template_name='index.html'),name="home"),
     path('quiz/', include('quiz.urls')),
-
-
 
 ]
 if settings.DEBUG:

@@ -1,29 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Edit Quiz: {{ quiz.title }}</h1>
-  <form method="post" action="{% url 'quiz:update_quiz' quiz.id  %}">
+<form method="post" action="{% url 'quiz:update_quiz' quiz.id  %}" class="form-group">
+    <h1>Edit Quiz: {{ quiz.title }}</h1>
     {% csrf_token %}
     {% for field in form %}
     <label>{{ field.label_tag }}</label>
     {{ field }}
     <br>
-  {% endfor %}
+    {% endfor %}
     <button class="button-primary">Save</button>
-  </form>
-
-  <!-- Display Questions -->
-<h2>Questions</h2>
-  {% for question in questions %}
-      <h3>{{ question.text }}</h3>
-      <a href="{% url 'quiz:update_question' question.id %}">Edit</a>
-      <a href="{% url 'quiz:question_delete' question.id %}">Delete Question</a>
-      <ul>
+    <h2>Questions</h2>
+    {% for question in questions %}
+    <h3>{{ question.text }}</h3>
+    <a href="{% url 'quiz:update_question' question.id %}">Edit</a>
+    <a href="{% url 'quiz:question_delete' question.id %}">Delete Question</a>
+    <ul>
         {% for choice in question.get_choices %}
-          <li>{{ choice.text }} {% if choice.is_correct %}(Correct){% endif %}</li>
+        <li>{{ choice.text }} {% if choice.is_correct %}(Correct){% endif %}</li>
         {% endfor %}
-      </ul>
-  {% endfor %}
+    </ul>
+    {% endfor %}
+<a href="{% url 'quiz:adaugare_intrebare' quiz.id %}" class="button-primary">Add question</a>
+    </form>
 
-  <a href="{% url 'quiz:adaugare_intrebare' quiz.id %}" class="button-primary">Add question</a>
 {% endblock %}

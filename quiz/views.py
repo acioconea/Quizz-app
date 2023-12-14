@@ -1,6 +1,5 @@
 import random
 from datetime import timedelta
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.urls import reverse_lazy
@@ -127,7 +126,6 @@ class UpdateQuestionView(LoginRequiredMixin, UpdateView):
     model = Question
     template_name = 'quiz/update_question.html'
     form_class = QuestionForm
-    success_url = reverse_lazy('quiz:lista_quizuri')
 
     def get(self, request, *args, **kwargs):
         question = self.get_object()
@@ -160,7 +158,7 @@ class UpdateQuestionView(LoginRequiredMixin, UpdateView):
         return data
 
     def get_success_url(self):
-        return reverse('quiz:categorie_noua')
+        return reverse('quiz:update_quiz', kwargs={'pk': self.object.quiz_id})
 
 
 class StartQuizView(View):
@@ -170,21 +168,32 @@ class StartQuizView(View):
         quiz = get_object_or_404(Quiz, pk=quiz_id)
         time_up = datetime.combine(datetime.today(), datetime.now().time()) + timedelta(minutes=quiz.duration_minutes)
 
-        user_quiz_history = UserQuizHistory.objects.create(
+        user_quiz_history = UserQuizHistory.objects.filter(
+            user=request.user,
+            quiz=quiz,
+            submitted=0,
+        ).order_by('-created_at').first() if UserQuizHistory.objects.filter(
+            user=request.user,
+            quiz=quiz,
+            submitted=0,
+        ) else UserQuizHistory.objects.create(
             user=request.user,
             quiz=quiz,
             score=0,
-            created_at=timezone.now()
-        )
-        user_quiz_history.submitted = True
+            created_at=timezone.now(),
+            submitted=0, )
+
         user_quiz_history.save()
 
-        questions = quiz.get_questions().order_by(F('id').desc())  # Initial order by ID or any other field
+        questions = quiz.get_questions().order_by(F('id').desc())
         questions = list(questions)
         random.shuffle(questions)
+        questions = questions[:quiz.nr_of_questions] if len(questions) >= quiz.nr_of_questions else questions
+        selected_question_ids = [question.id for question in questions]
+        request.session['selected_question_ids'] = selected_question_ids
 
         total_score = quiz.max_score
-        score_per_question = total_score / quiz.nr_of_questions if quiz.nr_of_questions > 0 else 0.0
+        score_per_question = total_score / len(questions) if len(questions) > 0 else 0.0
 
         context = {
             'quiz': quiz,
@@ -203,11 +212,13 @@ class SubmitQuizView(View):
 
     def post(self, request, quiz_id):
         quiz = get_object_or_404(Quiz, pk=quiz_id)
-        questions = quiz.get_questions()
+        selected_question_ids = request.session.get('selected_question_ids', [])
+        questions = quiz.get_questions().filter(id__in=selected_question_ids)
 
         user_quiz_history = UserQuizHistory.objects.filter(
             user=request.user,
-            quiz=quiz
+            quiz=quiz,
+            submitted=0,
         ).order_by('-created_at').first()
 
         user_responses = []
@@ -224,7 +235,6 @@ class SubmitQuizView(View):
             else:
                 question_score = 0
 
-            # Save the response
             response = Response(
                 user=request.user,
                 quiz=user_quiz_history,
@@ -265,5 +275,17 @@ class QuestionDeleteView(DeleteView):
         return reverse_lazy('quiz:update_quiz', kwargs={'pk': self.object.quiz_id})
 
 
-def home(request):
-    return render(request, 'home.html')
+class QuizHistoryView(LoginRequiredMixin, ListView):
+    model = UserQuizHistory
+    template_name = 'quiz/quiz_results.html'
+    paginate_by = 10
+
+    def get(self, request, pk):
+        quiz_history_list = UserQuizHistory.objects.filter(quiz_id=pk)
+
+        context = {
+            'quiz_history_list': quiz_history_list,
+            'quiz_id': pk,
+        }
+
+        return render(request, self.template_name, context)

@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
-<div >
-    <form method="POST">
+<div class="form-container" >
+    <form method="POST" class = "form-group">
         {% csrf_token %}
         {% for field in form %}
-        <label>{{ field.label_tag }}</label>
+        <label >{{ field.label_tag }}</label>
         {{ field }}
         <br>
         {% endfor %}
+        <br>
         <button class="button-primary" type="submit">Save</button>
     </form>
 
